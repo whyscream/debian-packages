@@ -16,22 +16,28 @@ SMFSPF_COMMIT = 838dc75 # no git tag :(
 all: postsrsd smf-spf
 
 $(SRC)/postsrsd: $(SRC)
-	git clone git@github.com:roehling/postsrsd.git $@
+	git clone https://github.com/roehling/postsrsd.git $@
 
 postsrsd_$(POSTSRSD_VERSION)_$(ARCH).deb: fpm $(SRC)/postsrsd
 	sudo apt-get install -yqq cmake
 	cd $(SRC)/postsrsd && git checkout $(POSTSRSD_VERSION)
 	mkdir -p $(SRC)/postsrsd/build
-	cd $(SRC)/postsrsd/build && cmake -DCMAKE_INSTALL_PREFIX=/usr .. && make && make install DESTDIR=dist
-	$(FPM_EXE) -s dir -t deb -C $(SRC)/postsrsd/build/dist \
+	cd $(SRC)/postsrsd/build && cmake -DCMAKE_INSTALL_PREFIX=/usr \
+		-DINIT_FLAVOR=sysv-lsb -DCHROOT_DIR=/var/lib/postsrsd \
+		-DGENERATE_SRS_SECRET=OFF ..
+	cd $(SRC)/postsrsd/build && make && make install DESTDIR=../dist
+	$(FPM_EXE) -s dir -t deb -C $(SRC)/postsrsd/dist \
 		--name postsrsd \
 		--version $(POSTSRSD_VERSION) \
-		--description "Sender Rewriting Scheme daemon for postfix"
+		--description "Sender Rewriting Scheme daemon for postfix" \
+		--deb-init $(SRC)/postsrsd/dist/etc/init.d/postsrsd \
+		--deb-default $(SRC)/postsrsd/dist/etc/default/postsrsd \
+		--after-install postsrsd/after-install.sh
 
 postsrsd: postsrsd_$(POSTSRSD_VERSION)_$(ARCH).deb
 
 $(SRC)/smf-spf: $(SRC)
-	git clone git@github.com:jcbf/smf-spf.git $@
+	git clone https://github.com/jcbf/smf-spf.git $@
 
 smf-spf_$(SMFSPF_VERSION)_$(ARCH).deb: fpm $(SRC)/smf-spf
 	cd $(SRC)/smf-spf && git checkout $(SMFSPF_COMMIT)
