@@ -1,6 +1,6 @@
-SRC = .src
+SRC = $(shell pwd)/.src
 
-GEM_HOME = .gems
+GEM_HOME = $(shell pwd)/.gems
 FPM_BIN = $(GEM_HOME)/bin/fpm
 FPM_EXE = GEM_HOME=$(GEM_HOME) $(FPM_BIN) --force
 
@@ -10,8 +10,9 @@ ARCH = amd64
 POSTSRSD_VERSION = 1.4
 SMFSPF_VERSION = 2.0.2
 SMFSPF_COMMIT = 838dc75 # no git tag :(
+RUBY_JLS_GROK_VERSION = 0.11.2
 
-.PHONY: fpmhelp mrproper prereqs
+.PHONY: fpmhelp mrproper
 
 all: postsrsd smf-spf
 
@@ -56,6 +57,15 @@ smf-spf_$(SMFSPF_VERSION)_$(ARCH).deb: fpm $(SRC)/smf-spf
 		smf-spf.conf=/etc/
 
 smf-spf: smf-spf_$(SMFSPF_VERSION)_$(ARCH).deb
+
+ruby-jls-grok_$(RUBY_JLS_GROK_VERSION)_all.deb: fpm
+	$(FPM_EXE) -s gem -t deb \
+		--version $(RUBY_JLS_GROK_VERSION) \
+		--gem-package-name-prefix ruby \
+		--prefix $(shell gem environment gemdir) \
+		jls-grok
+
+ruby-jls-grok: ruby-jls-grok_$(RUBY_JLS_GROK_VERSION)_all.deb
 
 $(FPM_BIN):
 	sudo apt-get install -yqq ruby-dev build-essential
