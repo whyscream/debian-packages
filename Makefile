@@ -44,6 +44,7 @@ smf-spf_$(SMFSPF_VERSION)_$(ARCH).deb: fpm $(SRC)/smf-spf
 	cd $(SRC)/smf-spf && make
 	sed -e 's@#User\s\+smfs@User nobody@' \
 		-e 's@#Socket\s\+unix:/var/run/smfs/smf-spf.sock@Socket unix:/var/run/smf-spf/smf-spf.sock@' \
+		-e 's@#Daemonize\s\+on@Daemonize off@' \
 		-i $(SRC)/smf-spf/smf-spf.conf
 	$(FPM_EXE) -s dir -t deb -C $(SRC)/smf-spf \
 		--name smf-spf \
@@ -51,7 +52,7 @@ smf-spf_$(SMFSPF_VERSION)_$(ARCH).deb: fpm $(SRC)/smf-spf
 		--description "SPF milter service" \
 		--depends libmilter1.0.1 \
 		--depends libspf2-2 \
-		--deb-init smf-spf/init/smf-spf \
+		--deb-systemd smf-spf/systemd/smf-spf.service \
 		smf-spf=/usr/sbin/ \
 		smf-spf.conf=/etc/
 
