@@ -8,8 +8,7 @@ ARCH = amd64
 
 # versions
 POSTSRSD_VERSION = 1.4
-SMFSPF_VERSION = 2.0.2
-SMFSPF_COMMIT = 838dc75 # no git tag :(
+SMFSPF_VERSION = 2.4.2
 RUBY_JLS_GROK_VERSION = 0.11.2
 
 .PHONY: fpmhelp mrproper
@@ -41,7 +40,7 @@ $(SRC)/smf-spf: $(SRC)
 	git clone https://github.com/jcbf/smf-spf.git $@
 
 smf-spf_$(SMFSPF_VERSION)_$(ARCH).deb: fpm $(SRC)/smf-spf
-	cd $(SRC)/smf-spf && git checkout $(SMFSPF_COMMIT)
+	cd $(SRC)/smf-spf && git checkout v$(SMFSPF_VERSION)
 	cd $(SRC)/smf-spf && make
 	sed -e 's@#User\s\+smfs@User nobody@' \
 		-e 's@#Socket\s\+unix:/var/run/smfs/smf-spf.sock@Socket unix:/var/run/smf-spf/smf-spf.sock@' \

@@ -35,6 +35,7 @@ case "$1" in
     stop)
         log_begin_msg "Stopping smf-spf..."
         start-stop-daemon --stop --quiet --oknodo --retry 2 --exec "$DAEMON"
+        rm -f /var/run/smf-spf/smf-spf.sock
         log_end_msg $?
         ;;
     status)
